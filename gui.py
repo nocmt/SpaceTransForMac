@@ -113,14 +113,33 @@ class ConfigGUI:
         button_frame = tk.Frame(self.root)
         button_frame.pack(fill=tk.X, padx=10, pady=10)
         
-        save_button = tk.Button(button_frame, text="保存配置", command=self.save_config, width=15)
-        save_button.pack(side=tk.LEFT, padx=5)
+        # 保存按钮引用以便后续使用
+        self.save_button = tk.Button(
+            button_frame, 
+            text="保存配置", 
+            command=self.save_config, 
+            width=15,
+            cursor="hand2"
+        )
+        self.save_button.pack(side=tk.LEFT, padx=5)
         
-        refresh_button = tk.Button(button_frame, text="刷新配置", command=self.refresh_config, width=15)
-        refresh_button.pack(side=tk.LEFT, padx=5)
+        self.refresh_button = tk.Button(
+            button_frame, 
+            text="刷新配置", 
+            command=self.refresh_config, 
+            width=15,
+            cursor="hand2"
+        )
+        self.refresh_button.pack(side=tk.LEFT, padx=5)
         
-        start_button = tk.Button(button_frame, text="启动翻译程序", command=self.start_translator, width=15)
-        start_button.pack(side=tk.RIGHT, padx=5)
+        self.start_button = tk.Button(
+            button_frame, 
+            text="启动翻译程序", 
+            command=self.start_translator, 
+            width=15,
+            cursor="hand2"
+        )
+        self.start_button.pack(side=tk.RIGHT, padx=5)
     
     def save_config(self):
         """
@@ -193,36 +212,83 @@ class ConfigGUI:
             import main
             import threading
             
-            # 检查是否已有状态标签，如果有则移除
+            # 移除旧的状态区域（如果存在）
             for widget in self.root.winfo_children():
-                if isinstance(widget, tk.Frame) and widget.winfo_children() and \
-                   isinstance(widget.winfo_children()[0], tk.Label) and \
-                   "翻译程序已启动" in widget.winfo_children()[0].cget("text"):
+                if hasattr(widget, 'status_container_tag'):
                     widget.destroy()
             
-            # 创建状态标签
-            status_frame = tk.Frame(self.root, bg="#e6f7ff", padx=10, pady=10)
-            status_frame.pack(fill=tk.X, padx=10, pady=10)
-            
-            status_label = tk.Label(
-                status_frame, 
-                text="翻译程序正在启动...", 
-                font=("Arial", 12),
-                fg="#0066cc",
-                bg="#e6f7ff",
-                padx=10,
-                pady=10
-            )
-            status_label.pack(fill=tk.X)
-            
             # 禁用启动按钮
-            start_button = None
-            for widget in self.root.winfo_children():
-                if isinstance(widget, tk.Frame):
-                    for child in widget.winfo_children():
-                        if isinstance(child, tk.Button) and child.cget("text") == "启动翻译程序":
-                            child.config(state=tk.DISABLED)
-                            start_button = child
+            self.start_button.config(state=tk.DISABLED, text="已经启动...")
+            
+            # 创建现代化的状态容器
+            self.status_container = tk.Frame(self.root, bg='#f5f5f5')
+            self.status_container.status_container_tag = True  # 添加标记
+            self.status_container.pack(fill=tk.X, padx=20, pady=(0, 20))
+            
+            # 状态卡片
+            status_card = tk.Frame(
+                self.status_container,
+                bg='#ffffff',
+                relief='flat',
+                bd=0
+            )
+            status_card.pack(fill=tk.X, pady=5)
+            
+            # 添加阴影效果（通过多层Frame模拟）
+            shadow_frame = tk.Frame(
+                self.status_container,
+                bg='#e0e0e0',
+                height=2
+            )
+            shadow_frame.pack(fill=tk.X)
+            
+            # 状态内容区域
+            content_frame = tk.Frame(status_card, bg='#ffffff', padx=25, pady=20)
+            content_frame.pack(fill=tk.X)
+            
+            # 状态图标和文本容器
+            status_info = tk.Frame(content_frame, bg='#ffffff')
+            status_info.pack(fill=tk.X)
+            
+            # 状态图标
+            self.status_icon = tk.Label(
+                status_info,
+                text="⏳",
+                font=("Arial", 28),
+                fg="#FF9800",
+                bg='#ffffff'
+            )
+            self.status_icon.pack(side=tk.LEFT, padx=(0, 15))
+            
+            # 文本区域
+            text_area = tk.Frame(status_info, bg='#ffffff')
+            text_area.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            
+            # 状态标题
+            self.status_title = tk.Label(
+                text_area,
+                text="正在启动翻译程序",
+                font=("SF Pro Display", 16, "bold"),
+                fg="#1a1a1a",
+                bg='#ffffff',
+                anchor="w"
+            )
+            self.status_title.pack(fill=tk.X, pady=(0, 5))
+            
+            # 状态描述
+            self.status_desc = tk.Label(
+                text_area,
+                text="正在初始化翻译服务，请稍候...",
+                font=("SF Pro Display", 12),
+                fg="#666666",
+                bg='#ffffff',
+                anchor="w",
+                wraplength=400
+            )
+            self.status_desc.pack(fill=tk.X)
+            
+            # 按钮容器（初始隐藏）
+            self.button_container = tk.Frame(content_frame, bg='#ffffff')
             
             # 更新GUI状态
             self.root.update()
@@ -230,44 +296,112 @@ class ConfigGUI:
             # 在单独的线程中启动翻译程序
             def run_translator():
                 try:
-                    translator = main.main(from_gui=True)
+                    # 启动翻译程序并保存实例
+                    self.translator = main.main(from_gui=True)
                     print("翻译程序已在后台启动")
                     
-                    # 在主线程中更新UI
-                    self.root.after(0, lambda: status_label.config(
-                        text="✅ 翻译程序已启动！按下空格键3次可触发翻译。\n程序在后台运行中，可以关闭此窗口。"
-                    ))
-                    
-                    # 添加一个关闭窗口的按钮
-                    self.root.after(0, lambda: tk.Button(
-                        status_frame, 
-                        text="关闭配置窗口", 
-                        command=self.root.destroy,
-                        bg="#4CAF50",
-                        fg="white",
-                        padx=10,
-                        pady=5
-                    ).pack(pady=10))
+                    # 在主线程中更新UI为成功状态
+                    self.root.after(0, self.update_success_status)
                     
                 except Exception as e:
                     error_msg = f"翻译程序启动失败: {e}"
                     print(error_msg)
-                    # 在主线程中显示错误
-                    self.root.after(0, lambda: status_label.config(
-                        text=f"❌ {error_msg}",
-                        fg="#cc0000"
-                    ))
-                    # 重新启用启动按钮
-                    if start_button:
-                        self.root.after(0, lambda: start_button.config(state=tk.NORMAL))
+                    
+                    # 在主线程中显示错误状态
+                    self.root.after(0, lambda: self.update_error_status(error_msg))
             
             # 启动线程
             translator_thread = threading.Thread(target=run_translator)
-            translator_thread.daemon = True  # 设置为守护线程，这样主程序退出时线程也会退出
+            translator_thread.daemon = True
             translator_thread.start()
             
         except Exception as e:
             messagebox.showerror("错误", f"启动翻译程序失败: {e}")
+    
+    def update_success_status(self):
+        """更新为成功状态"""
+        # 更新图标和颜色
+        self.status_icon.config(text="🎉", fg="#4CAF50")
+        
+        # 更新标题
+        self.status_title.config(
+            text="启动成功！",
+            fg="#4CAF50",
+            font=("SF Pro Display", 16, "bold")
+        )
+        
+        # 更新描述
+        self.status_desc.config(
+            text="翻译程序已在后台运行\n连续按下空格键三次即可翻译选中的文本\n\n现在您可以关闭此配置窗口，程序将继续在后台工作",
+            font=("SF Pro Display", 12),
+            fg="#666666"
+        )
+        
+        # 更新启动按钮文本
+        self.start_button.config(text="翻译程序已启动", state=tk.DISABLED)
+        
+        # 添加分隔线
+        separator = tk.Frame(self.status_container, height=1, bg="#E0E0E0")
+        separator.pack(fill=tk.X, pady=(15, 10))
+        
+        # 创建按钮容器
+        button_container = tk.Frame(self.status_container)
+        button_container.pack(fill=tk.X, pady=(0, 10))
+        
+        # 创建按钮样式
+        button_style = {
+            "font": ("SF Pro Display", 12, "bold"),
+            "relief": "flat",
+            "padx": 20,
+            "pady": 12,
+            "cursor": "hand2",
+            "borderwidth": 0
+        }
+        
+        # 创建关闭按钮
+        close_button = tk.Button(
+            button_container,
+            text="✕ 关闭配置窗口",
+            command=self.root.destroy,
+            bg="#FF5722",
+            fg="white",
+            activebackground="#E64A19",
+            activeforeground="white",
+            **button_style
+        )
+        close_button.pack(side=tk.LEFT, padx=(10, 5), fill=tk.X, expand=True)
+        
+        # 创建最小化按钮
+        minimize_button = tk.Button(
+            button_container,
+            text="⬇ 最小化到后台",
+            command=self.root.iconify,
+            bg="#2196F3",
+            fg="white",
+            activebackground="#1976D2",
+            activeforeground="white",
+            **button_style
+        )
+        minimize_button.pack(side=tk.RIGHT, padx=(5, 10), fill=tk.X, expand=True)
+    
+    def update_error_status(self, error_msg):
+        """更新为错误状态"""
+        # 更新图标和颜色
+        self.status_icon.config(text="❌", fg="#F44336")
+        
+        # 更新标题
+        self.status_title.config(
+            text="启动失败",
+            fg="#F44336"
+        )
+        
+        # 更新描述
+        self.status_desc.config(
+            text=f"{error_msg}\n请检查配置并重试。"
+        )
+        
+        # 重新启用启动按钮
+        self.start_button.config(state=tk.NORMAL, text="启动翻译程序")
 
 
 def main():
