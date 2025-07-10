@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-SpaceTrans启动脚本
+SpaceTransForMac启动脚本
 
-检查依赖并启动SpaceTrans程序
+检查依赖并启动SpaceTransForMac程序
 """
 
 import sys
@@ -80,6 +80,8 @@ def build_executable():
     """
     print("=== 开始打包应用 ===")
     print("注意：打包后的应用程序不包含配置文件，首次运行时会自动创建配置文件")
+    print("打包后的应用将包含GUI配置界面，可以通过界面设置和保存配置")
+    print("应用将使用当前目录下的icon.icns作为图标")
     
     # 确保PyInstaller已安装
     if not check_pyinstaller():
@@ -94,11 +96,11 @@ def build_executable():
 block_cipher = None
 
 a = Analysis(
-    ['main.py'],
+    ['gui.py'],  # 使用GUI作为入口点
     pathex=[],
     binaries=[],
     datas=[],
-    hiddenimports=[],
+    hiddenimports=['pynput.keyboard', 'pynput.mouse', 'tkinter', 'tkinter.scrolledtext', 'config_manager', 'main'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -109,13 +111,13 @@ a = Analysis(
     noarchive=False,
 )
 plist = {
-    'CFBundleName': 'SpaceTrans',
-    'CFBundleDisplayName': 'SpaceTrans',
-    'CFBundleGetInfoString': "SpaceTrans - 一个macOS下的即时翻译工具",
+    'CFBundleName': 'SpaceTransForMac',
+    'CFBundleDisplayName': 'SpaceTransForMac',
+    'CFBundleGetInfoString': "SpaceTransForMac - 一个macOS下的即时翻译工具",
     'CFBundleIdentifier': "com.spacetrans.app",
     'CFBundleVersion': "1.0.0",
     'CFBundleShortVersionString': "1.0.0",
-    'NSHumanReadableCopyright': "Copyright © 2025, SpaceTrans",
+    'NSHumanReadableCopyright': "Copyright © 2025, SpaceTransForMac",
 }
 # 不将配置文件打包进应用程序
 
@@ -126,7 +128,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='SpaceTrans',
+    name='SpaceTransForMac',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -146,25 +148,25 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='SpaceTrans',
+    name='SpaceTransForMac',
 )
 app = BUNDLE(
     coll,
-    name='SpaceTrans.app',
-    icon=None,
+    name='SpaceTransForMac.app',
+    icon='icon.icns',
     bundle_identifier=None,
     info_plist=plist,
 )
 '''
     
-    with open('SpaceTrans.spec', 'w') as f:
+    with open('SpaceTransForMac.spec', 'w') as f:
         f.write(spec_content)
     
     # 运行PyInstaller
     try:
         print("正在打包应用，这可能需要几分钟时间...")
-        subprocess.check_call(["pyinstaller", "SpaceTrans.spec"])
-        print("\n打包完成！应用位于 dist/SpaceTrans.app")
+        subprocess.check_call(["pyinstaller", "SpaceTransForMac.spec"])
+        print("\n打包完成！应用位于 dist/SpaceTransForMac.app")
         return True
     except subprocess.CalledProcessError as e:
         print(f"打包失败: {e}")
@@ -175,10 +177,10 @@ def main():
     """
     主函数
     """
-    print("=== SpaceTrans启动器 ===")
+    print("=== SpaceTransForMac启动器 ===")
     
     # 检查必要的依赖
-    required_modules = ["pynput", "pyperclip", "requests"]
+    required_modules = ["pynput", "pyperclip", "requests", "tkinter"]
     missing_modules = [m for m in required_modules if not check_dependency(m)]
     
     if missing_modules:
@@ -195,19 +197,34 @@ def main():
     # 检查配置
     # check_config()
     
-    # 询问是否打包应用
-    user_input = input("是否打包为可执行应用？(y/n): ")
-    if user_input.lower() == "y":
+    # 询问启动模式
+    print("\n请选择启动模式:")
+    print("1. 启动翻译程序 (无界面)")
+    print("2. 启动配置界面")
+    print("3. 打包为可执行应用")
+    
+    while True:
+        user_input = input("请输入选项 (1/2/3): ")
+        if user_input in ["1", "2", "3"]:
+            break
+        print("无效的选项，请重新输入")
+    
+    if user_input == "3":
         build_executable()
         return
     
-    # 启动主程序
+    # 启动主程序或GUI
     try:
-        print("正在启动SpaceTrans...")
-        import main
-        main.main()
+        if user_input == "1":
+            print("正在启动SpaceTransForMac...")
+            import main
+            main.main()
+        else:  # user_input == "2"
+            print("正在启动配置界面...")
+            import gui
+            gui.main()
     except KeyboardInterrupt:
-        print("\nSpaceTrans已退出")
+        print("\nSpaceTransForMac已退出")
     except Exception as e:
         print(f"程序启动失败: {e}")
 

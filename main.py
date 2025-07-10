@@ -217,17 +217,26 @@ class SpaceTranslator:
             self.is_translating = False
 
 
-def main():
+def main(from_gui=False):
     """
     主函数
+    
+    Args:
+        from_gui: 是否从GUI启动，如果是则不捕获KeyboardInterrupt
     """
     try:
         translator = SpaceTranslator()
         translator.start()
+        if from_gui:
+            # 如果从GUI启动，返回translator实例以便GUI可以控制它
+            return translator
     except KeyboardInterrupt:
-        print("\nSpaceTransForMac已退出")
+        if not from_gui:
+            print("\nSpaceTransForMac已退出")
     except Exception as e:
         print(f"程序出错: {e}")
+        if from_gui:
+            raise  # 从GUI启动时，向上传递异常以便GUI可以显示错误
 
 
 if __name__ == "__main__":
