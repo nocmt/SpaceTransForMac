@@ -32,7 +32,7 @@ pip install -r requirements.txt
 
 - API密钥（必填）
 - API地址（默认为SiliconFlow API）
-- 模型名称（默认为DeepSeek-V3）
+- 模型名称（默认为THUDM/GLM-4.1V-9B-Thinking）
 
 这些配置会保存在用户主目录下的`~/.spacetrans/config.json`文件中，你可以随时手动编辑该文件修改配置。
 
