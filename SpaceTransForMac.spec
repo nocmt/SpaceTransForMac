@@ -1,6 +1,5 @@
 
 # -*- mode: python ; coding: utf-8 -*-
-
 block_cipher = None
 
 a = Analysis(
@@ -8,7 +7,20 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[],
-    hiddenimports=['pynput.keyboard', 'pynput.mouse', 'tkinter', 'tkinter.scrolledtext', 'config_manager', 'main'],
+    hiddenimports=[
+        'pynput.keyboard', 
+        'pynput.mouse', 
+        'pynput._util.darwin',
+        'tkinter', 
+        'tkinter.scrolledtext', 
+        'tkinter.messagebox',
+        'config_manager', 
+        'main',
+        'threading',
+        'json',
+        'os',
+        'sys'
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -26,6 +38,9 @@ plist = {
     'CFBundleVersion': "1.0.0",
     'CFBundleShortVersionString': "1.0.0",
     'NSHumanReadableCopyright': "Copyright © 2025, SpaceTransForMac",
+    'LSUIElement': True,  # 不在Dock中显示图标
+    'NSAppleEventsUsageDescription': '此应用需要访问系统事件以监听键盘输入',
+    'NSAccessibilityUsageDescription': '此应用需要辅助功能权限以监听全局键盘事件和获取选中文本',
 }
 # 不将配置文件打包进应用程序
 
@@ -62,6 +77,6 @@ app = BUNDLE(
     coll,
     name='SpaceTransForMac.app',
     icon='icon.icns',
-    bundle_identifier=None,
+    bundle_identifier='com.spacetrans.app',
     info_plist=plist,
 )
