@@ -4,4 +4,4 @@ __pycache__
 .conda
 dist
 build
-SpaceTrans.spec
+*.spec

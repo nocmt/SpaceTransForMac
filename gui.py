@@ -188,33 +188,86 @@ class ConfigGUI:
         # 先保存配置
         self.save_config()
         
-        # 隐藏GUI窗口
-        self.root.withdraw()
-        
         try:
-            # 导入并启动翻译程序
+            # 导入main模块
             import main
-            translator = main.main(from_gui=True)
+            import threading
             
-            # 显示提示信息
-            messagebox.showinfo("SpaceTransForMac", "翻译程序已启动！\n\n按下空格键3次可触发翻译。\n\n关闭此窗口后，程序将在后台运行。")
+            # 检查是否已有状态标签，如果有则移除
+            for widget in self.root.winfo_children():
+                if isinstance(widget, tk.Frame) and widget.winfo_children() and \
+                   isinstance(widget.winfo_children()[0], tk.Label) and \
+                   "翻译程序已启动" in widget.winfo_children()[0].cget("text"):
+                    widget.destroy()
             
-            # 关闭GUI窗口
-            self.root.destroy()
+            # 创建状态标签
+            status_frame = tk.Frame(self.root, bg="#e6f7ff", padx=10, pady=10)
+            status_frame.pack(fill=tk.X, padx=10, pady=10)
             
-            # 保持翻译程序运行
-            try:
-                # 阻塞主线程，直到用户按下Ctrl+C
-                while True:
-                    import time
-                    time.sleep(1)
-            except KeyboardInterrupt:
-                print("\nSpaceTransForMac已退出")
-                
+            status_label = tk.Label(
+                status_frame, 
+                text="翻译程序正在启动...", 
+                font=("Arial", 12),
+                fg="#0066cc",
+                bg="#e6f7ff",
+                padx=10,
+                pady=10
+            )
+            status_label.pack(fill=tk.X)
+            
+            # 禁用启动按钮
+            start_button = None
+            for widget in self.root.winfo_children():
+                if isinstance(widget, tk.Frame):
+                    for child in widget.winfo_children():
+                        if isinstance(child, tk.Button) and child.cget("text") == "启动翻译程序":
+                            child.config(state=tk.DISABLED)
+                            start_button = child
+            
+            # 更新GUI状态
+            self.root.update()
+            
+            # 在单独的线程中启动翻译程序
+            def run_translator():
+                try:
+                    translator = main.main(from_gui=True)
+                    print("翻译程序已在后台启动")
+                    
+                    # 在主线程中更新UI
+                    self.root.after(0, lambda: status_label.config(
+                        text="✅ 翻译程序已启动！按下空格键3次可触发翻译。\n程序在后台运行中，可以关闭此窗口。"
+                    ))
+                    
+                    # 添加一个关闭窗口的按钮
+                    self.root.after(0, lambda: tk.Button(
+                        status_frame, 
+                        text="关闭配置窗口", 
+                        command=self.root.destroy,
+                        bg="#4CAF50",
+                        fg="white",
+                        padx=10,
+                        pady=5
+                    ).pack(pady=10))
+                    
+                except Exception as e:
+                    error_msg = f"翻译程序启动失败: {e}"
+                    print(error_msg)
+                    # 在主线程中显示错误
+                    self.root.after(0, lambda: status_label.config(
+                        text=f"❌ {error_msg}",
+                        fg="#cc0000"
+                    ))
+                    # 重新启用启动按钮
+                    if start_button:
+                        self.root.after(0, lambda: start_button.config(state=tk.NORMAL))
+            
+            # 启动线程
+            translator_thread = threading.Thread(target=run_translator)
+            translator_thread.daemon = True  # 设置为守护线程，这样主程序退出时线程也会退出
+            translator_thread.start()
+            
         except Exception as e:
             messagebox.showerror("错误", f"启动翻译程序失败: {e}")
-            # 恢复GUI窗口
-            self.root.deiconify()
 
 
 def main():

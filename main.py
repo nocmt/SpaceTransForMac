@@ -51,12 +51,30 @@ class SpaceTranslator:
         print(f"SpaceTransForMac已启动，配置文件位置: {get_config_path()}")
         print(f"连续按下{self.SPACE_TRIGGER_COUNT}次空格键即可触发翻译")
     
-    def start(self):
+    def start(self, from_gui=False):
         """
         启动监听器
+        
+        Args:
+            from_gui: 是否从GUI启动，如果是则不阻塞主线程
         """
-        self.keyboard_listener.start()
-        self.keyboard_listener.join()  # 保持程序运行
+        # 确保监听器已启动
+        if not self.keyboard_listener.is_alive():
+            self.keyboard_listener.start()
+        
+        # 如果不是从GUI启动，则阻塞主线程以保持程序运行
+        if not from_gui:
+            try:
+                self.keyboard_listener.join()
+            except Exception as e:
+                print(f"监听器异常: {e}")
+                # 尝试重新启动监听器
+                self.keyboard_listener = keyboard.Listener(
+                    on_press=self.on_key_press,
+                    on_release=self.on_key_release
+                )
+                self.keyboard_listener.start()
+                self.keyboard_listener.join()
     
     def on_key_press(self, key):
         """
@@ -226,7 +244,7 @@ def main(from_gui=False):
     """
     try:
         translator = SpaceTranslator()
-        translator.start()
+        translator.start(from_gui=from_gui)
         if from_gui:
             # 如果从GUI启动，返回translator实例以便GUI可以控制它
             return translator

@@ -81,7 +81,7 @@ def build_executable():
     print("=== 开始打包应用 ===")
     print("注意：打包后的应用程序不包含配置文件，首次运行时会自动创建配置文件")
     print("打包后的应用将包含GUI配置界面，可以通过界面设置和保存配置")
-    print("应用将使用当前目录下的icon.icns作为图标")
+    print("应用将使用当前目录下的icon.icns作为图标（macOS格式）")
     
     # 确保PyInstaller已安装
     if not check_pyinstaller():
@@ -92,7 +92,6 @@ def build_executable():
     # 创建spec文件
     spec_content = '''
 # -*- mode: python ; coding: utf-8 -*-
-
 block_cipher = None
 
 a = Analysis(
@@ -202,15 +201,19 @@ def main():
     print("1. 启动翻译程序 (无界面)")
     print("2. 启动配置界面")
     print("3. 打包为可执行应用")
+    print("4. 退出")
     
     while True:
-        user_input = input("请输入选项 (1/2/3): ")
-        if user_input in ["1", "2", "3"]:
+        user_input = input("请输入选项 (1/2/3/4): ")
+        if user_input in ["1", "2", "3", "4"]:
             break
         print("无效的选项，请重新输入")
     
     if user_input == "3":
         build_executable()
+        return
+    if user_input == "4":
+        print("谢谢使用SpaceTransForMac启动器")
         return
     
     # 启动主程序或GUI
