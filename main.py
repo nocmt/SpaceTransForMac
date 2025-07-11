@@ -14,6 +14,7 @@ import requests
 from pynput import keyboard
 import pyperclip
 import keyboard as newkeyboard
+import py3langid
 
 # 导入配置管理模块
 from config_manager import load_config, get_config_path
@@ -216,9 +217,17 @@ class SpaceTranslator:
             
             self.original_text = selected_text
             print(f"正在翻译: {selected_text[:30]}...")
-            
+            selected_text = selected_text[:-3]
+            # 识别内容语言，补充文本
+            lang , trust_level = py3langid.classify(selected_text)
+            print(lang,trust_level)
+            if lang == "zh":
+                selected_text = f"Translate into English: {selected_text}"
+            else:
+                selected_text = f"Translate into Simplified Chinese: {selected_text}"
+
             # 调用API翻译文本
-            translated_text = self.translate_text(selected_text[:-3]) # 去掉3个空格
+            translated_text = self.translate_text(selected_text) # 去掉3个空格
             
             # 替换选中的文本
             if translated_text and translated_text != "错误：请先设置API_KEY":

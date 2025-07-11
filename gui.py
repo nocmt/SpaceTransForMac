@@ -21,7 +21,7 @@ class ConfigGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("SpaceTransForMac 配置")
-        self.root.geometry("600x500")
+        self.root.geometry("600x650")
         self.root.resizable(True, True)
         
         # 加载配置
@@ -318,6 +318,35 @@ class ConfigGUI:
         except Exception as e:
             messagebox.showerror("错误", f"启动翻译程序失败: {e}")
     
+    def stop_translator(self):
+        """停止翻译程序"""
+        if hasattr(self, 'translator') and self.translator:
+            # 停止键盘监听器
+            if hasattr(self.translator, 'keyboard_listener') and self.translator.keyboard_listener.is_alive():
+                self.translator.keyboard_listener.stop()
+            
+            # 重置翻译器实例
+            self.translator = None
+            print("翻译程序已停止")
+            return True
+        return False
+    
+    def restart_translator(self):
+        """重启翻译程序"""
+        # 先停止当前运行的翻译程序
+        self.stop_translator()
+        
+        # 清除状态容器
+        for widget in self.root.winfo_children():
+            if hasattr(widget, 'status_container_tag'):
+                widget.destroy()
+        
+        # 重新启用启动按钮
+        self.start_button.config(state=tk.NORMAL, text="启动翻译程序")
+        
+        # 重新启动翻译程序
+        self.start_translator()
+    
     def update_success_status(self):
         """更新为成功状态"""
         # 更新图标和颜色
@@ -332,7 +361,7 @@ class ConfigGUI:
         
         # 更新描述
         self.status_desc.config(
-            text="翻译程序已在后台运行\n连续按下空格键三次即可翻译选中的文本\n\n现在您可以关闭此配置窗口，程序将继续在后台工作",
+            text="现在您可以最小化此配置窗口，程序将继续在后台工作",
             font=("SF Pro Display", 12),
             fg="#666666"
         )
@@ -358,18 +387,31 @@ class ConfigGUI:
             "borderwidth": 0
         }
         
+        # 创建重启按钮
+        restart_button = tk.Button(
+            button_container,
+            text="🔄 重启翻译程序",
+            command=self.restart_translator,
+            bg="#FF9800",
+            fg="black",
+            activebackground="#F57C00",
+            activeforeground="black",
+            **button_style
+        )
+        restart_button.pack(side=tk.LEFT, padx=(10, 5), fill=tk.X, expand=True)
+        
         # 创建关闭按钮
         close_button = tk.Button(
             button_container,
             text="✕ 关闭配置窗口",
             command=self.root.destroy,
             bg="#FF5722",
-            fg="white",
+            fg="black",
             activebackground="#E64A19",
-            activeforeground="white",
+            activeforeground="black",
             **button_style
         )
-        close_button.pack(side=tk.LEFT, padx=(10, 5), fill=tk.X, expand=True)
+        close_button.pack(side=tk.LEFT, padx=(5, 5), fill=tk.X, expand=True)
         
         # 创建最小化按钮
         minimize_button = tk.Button(
@@ -377,9 +419,9 @@ class ConfigGUI:
             text="⬇ 最小化到后台",
             command=self.root.iconify,
             bg="#2196F3",
-            fg="white",
+            fg="black",
             activebackground="#1976D2",
-            activeforeground="white",
+            activeforeground="black",
             **button_style
         )
         minimize_button.pack(side=tk.RIGHT, padx=(5, 10), fill=tk.X, expand=True)
