@@ -14,14 +14,13 @@ import requests
 from pynput import keyboard
 import pyperclip
 import keyboard as newkeyboard
-import py3langid
+import py3langid as langid
 
 # 导入配置管理模块
 from config_manager import load_config, get_config_path
 
 # 加载配置
 config = load_config()
-
 
 class SpaceTranslator:
     """
@@ -219,7 +218,7 @@ class SpaceTranslator:
             print(f"正在翻译: {selected_text[:30]}...")
             selected_text = selected_text[:-3]
             # 识别内容语言，补充文本
-            lang , trust_level = py3langid.classify(selected_text)
+            lang , trust_level = langid.classify(selected_text)
             print(lang,trust_level)
             if lang == "zh":
                 selected_text = f"Translate into English: {selected_text}"

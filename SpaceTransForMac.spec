@@ -6,7 +6,10 @@ a = Analysis(
     ['gui.py'],  # 使用GUI作为入口点
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('Release.entitlements', '.'),
+        ('model.plzma','./py3langid/data/')
+    ],
     hiddenimports=[
         'pynput.keyboard', 
         'pynput.mouse', 
@@ -61,7 +64,7 @@ exe = EXE(
     argv_emulation=True,
     target_arch=None,
     codesign_identity=None,
-    entitlements_file=None,
+    entitlements_file="Release.entitlements",
 )
 coll = COLLECT(
     exe,

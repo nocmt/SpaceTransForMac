@@ -10,6 +10,7 @@ SpaceTransForMac启动脚本
 import sys
 import subprocess
 import importlib.util
+import shutil
 
 def check_dependency(module_name):
     """
@@ -98,7 +99,10 @@ a = Analysis(
     ['gui.py'],  # 使用GUI作为入口点
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('Release.entitlements', '.'),
+        ('model.plzma','./py3langid/data/')
+    ],
     hiddenimports=[
         'pynput.keyboard', 
         'pynput.mouse', 
@@ -153,7 +157,7 @@ exe = EXE(
     argv_emulation=True,
     target_arch=None,
     codesign_identity=None,
-    entitlements_file=None,
+    entitlements_file="Release.entitlements",
 )
 coll = COLLECT(
     exe,
@@ -177,6 +181,11 @@ app = BUNDLE(
     with open('SpaceTransForMac.spec', 'w') as f:
         f.write(spec_content)
     
+    # 删除dist和build目录
+    shutil.rmtree('dist', ignore_errors=True)
+    shutil.rmtree('build', ignore_errors=True)
+    shutil.rmtree('__pycache__', ignore_errors=True)
+
     # 运行PyInstaller
     try:
         print("正在打包应用，这可能需要几分钟时间...")
@@ -195,7 +204,7 @@ def main():
     print("=== SpaceTransForMac启动器 ===")
     
     # 检查必要的依赖
-    required_modules = ["pynput", "pyperclip", "requests", "tkinter"]
+    required_modules = ["pynput", "pyperclip", "requests", "tkinter","py3langid","keyboard"]
     missing_modules = [m for m in required_modules if not check_dependency(m)]
     
     if missing_modules:
