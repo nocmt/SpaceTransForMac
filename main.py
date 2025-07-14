@@ -15,6 +15,7 @@ from pynput import keyboard
 import pyperclip
 import keyboard as newkeyboard
 import py3langid as langid
+import platform
 
 # 导入配置管理模块
 from config_manager import load_config, get_config_path
@@ -31,6 +32,10 @@ class SpaceTranslator:
         self.API_KEY = config["API_KEY"]
         self.API_HOST = config["API_HOST"]
         self.MODEL = config["MODEL"]
+        if platform.system() == "Darwin":
+            self.CTRL_KEY = "cmd"
+        else:
+            self.CTRL_KEY = "ctrl"
         
         # 空格键监听相关变量
         self.space_count = 0
@@ -127,7 +132,7 @@ class SpaceTranslator:
         old_clipboard = pyperclip.paste()
         
         # 模拟Command+C复制选中文本
-        newkeyboard.press_and_release('cmd+c')
+        newkeyboard.press_and_release(self.CTRL_KEY + '+c')
         
         # 等待剪贴板更新
         time.sleep(0.1)
@@ -151,7 +156,7 @@ class SpaceTranslator:
         # 复制新文本到剪贴板
         pyperclip.copy(new_text)
         # 模拟Command+V粘贴
-        newkeyboard.press_and_release('cmd+v')
+        newkeyboard.press_and_release(self.CTRL_KEY + '+v')
         # 恢复原始剪贴板内容
         pyperclip.copy(old_clipboard)
     
@@ -201,7 +206,7 @@ class SpaceTranslator:
         
         try:
             # 先模拟按下Command+A全选文本
-            newkeyboard.press_and_release('cmd+a')
+            newkeyboard.press_and_release(self.CTRL_KEY + '+a')
             
             # 短暂延迟确保全选完成
             time.sleep(0.1)
