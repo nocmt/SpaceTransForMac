@@ -157,6 +157,7 @@ class SpaceTranslator:
         pyperclip.copy(new_text)
         # 模拟Command+V粘贴
         newkeyboard.press_and_release(self.CTRL_KEY + '+v')
+        time.sleep(0.1)
         # 恢复原始剪贴板内容
         pyperclip.copy(old_clipboard)
     
