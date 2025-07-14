@@ -177,8 +177,10 @@ app = BUNDLE(
     info_plist=plist,
 )
 '''
-    
-    with open('SpaceTransForMac.spec', 'w') as f:
+    if platform.system() == "Windows":
+        spec_content = spec_content.replace("icon.icns", "icon.ico")
+
+    with open('SpaceTransForMac.spec', 'w', encoding="utf-8") as f:
         f.write(spec_content)
     
     # 删除dist和build目录
@@ -190,7 +192,7 @@ app = BUNDLE(
     try:
         print("正在打包应用，这可能需要几分钟时间...")
         subprocess.check_call(["pyinstaller", "SpaceTransForMac.spec"])
-        print("\n打包完成！应用位于 dist/SpaceTransForMac.app")
+        print("\n打包完成！应用位于 dist目录")
         return True
     except subprocess.CalledProcessError as e:
         print(f"打包失败: {e}")

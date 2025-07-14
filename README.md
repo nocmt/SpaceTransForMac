@@ -75,7 +75,7 @@ open dist/SpaceTransForMac.app
 python run.py
 ```
 
-然后在提示时选择`y`进行打包。打包完成后，应用将位于`dist/SpaceTransForMac.app`目录。
+然后在提示时选择`3`进行打包。打包完成后，应用将位于`dist/SpaceTransForMac.app`目录。
 
 **注意**：打包的应用程序不包含配置文件，这是为了保护你的API密钥等敏感信息。首次运行打包后的应用程序时，系统会自动在用户主目录下的`~/.spacetrans/`文件夹中创建新的配置文件，并提示你输入必要的配置信息。
 

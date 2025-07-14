@@ -18,7 +18,7 @@ CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 
 # 默认配置
 DEFAULT_CONFIG = {
-    "API_KEY": "",
+    "API_KEY": "必须填写，否则报错",
     "API_HOST": "https://api.siliconflow.cn",
     "MODEL": "Qwen/Qwen2.5-7B-Instruct",
     "SPACE_TIMEOUT": 0.5,
@@ -54,34 +54,33 @@ def load_config():
         print("将使用默认配置")
         return DEFAULT_CONFIG
 
-
 def create_initial_config():
     """
     创建初始配置文件，提示用户输入必要参数
     """
     config = DEFAULT_CONFIG.copy()
+
+    # print("=== SpaceTrans首次配置 ===")
+    # print("请输入以下必要参数（按Enter使用默认值）：")
     
-    print("=== SpaceTrans首次配置 ===")
-    print("请输入以下必要参数（按Enter使用默认值）：")
+    # # 获取API密钥
+    # api_key = input(f"API密钥 (必填): ")
+    # while not api_key.strip():
+    #     print("API密钥不能为空，这是必填项")
+    #     api_key = input(f"API密钥 (必填): ")
+    # config["API_KEY"] = api_key
     
-    # 获取API密钥
-    api_key = input(f"API密钥 (必填): ")
-    while not api_key.strip():
-        print("API密钥不能为空，这是必填项")
-        api_key = input(f"API密钥 (必填): ")
-    config["API_KEY"] = api_key
+    # # 获取API HOST
+    # default_host = config["API_HOST"]
+    # api_host = input(f"API HOST ({default_host}): ")
+    # if api_host.strip():
+    #     config["API_HOST"] = api_host
     
-    # 获取API HOST
-    default_host = config["API_HOST"]
-    api_host = input(f"API HOST ({default_host}): ")
-    if api_host.strip():
-        config["API_HOST"] = api_host
-    
-    # 获取模型名称
-    default_model = config["MODEL"]
-    model = input(f"模型名称 ({default_model}): ")
-    if model.strip():
-        config["MODEL"] = model
+    # # 获取模型名称
+    # default_model = config["MODEL"]
+    # model = input(f"模型名称 ({default_model}): ")
+    # if model.strip():
+    #     config["MODEL"] = model
     
     # 保存配置
     try:
