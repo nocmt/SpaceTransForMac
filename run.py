@@ -11,6 +11,7 @@ import sys
 import subprocess
 import importlib.util
 import shutil
+import platform
 
 def check_dependency(module_name):
     """
