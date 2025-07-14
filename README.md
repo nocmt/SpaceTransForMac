@@ -1,8 +1,8 @@
-# SpaceTransForMac - macOS即时翻译工具
+# SpaceTransForMac - 多平台即时翻译工具
 
 ## 项目介绍
 
-SpaceTransForMac是一个macOS平台下的即时翻译工具，通过连续按下三次空格键触发翻译功能，将选中的文本翻译并自动替换。
+SpaceTransForMac是一个macOS、Windows、Linux平台下的即时翻译工具，通过连续按下三次空格键触发翻译功能，将选中的文本翻译并自动替换。
 
 理论上其他平台理论上也可以运行，但是未经测试，不保证兼容性。
 
